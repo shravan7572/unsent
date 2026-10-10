@@ -1,26 +1,88 @@
+ @import url('https://fonts.googleapis.com/css2?family=Tiro+Devanagari+Hindi&family=Cormorant+Garamond:ital,wght@0,300;0,400;1,300;1,400&family=DM+Sans:opsz,wght@9..40,300;9..40,400&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,400;0,500;0,600;0,700;1,400;1,500;1,600&family=Martel:wght@400;700;800;900&family=Rozha+One&display=swap');
 @import "tailwindcss";
 
 :root {
-  --background: #ffffff;
-  --foreground: #171717;
-}
-
-@theme inline {
-  --color-background: var(--background);
-  --color-foreground: var(--foreground);
-  --font-sans: var(--font-geist-sans);
-  --font-mono: var(--font-geist-mono);
-}
-
-@media (prefers-color-scheme: dark) {
-  :root {
-    --background: #0a0a0a;
-    --foreground: #ededed;
-  }
+  --background: #0d0a08;
+  --foreground: #f4efe6;
+  --card-paper: #f5f0e8;
+  --card-text: #231f1c;
+  --card-border: #e3dac9;
+  --crimson-muted: #8B0000;
+  --crimson-rose: #9c2727;
+  --warm-gold: #c29d62;
 }
 
 body {
-  background: var(--background);
+  background-color: var(--background);
   color: var(--foreground);
-  font-family: Arial, Helvetica, sans-serif;
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+  overflow-x: hidden;
+  min-height: 100vh;
+  position: relative;
 }
+
+/* Subtle warm grain/noise texture overlay */
+body::before {
+  content: "";
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100vw;
+  height: 100vh;
+  pointer-events: none;
+  z-index: 50;
+  opacity: 0.038;
+  background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noiseFilter'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noiseFilter)'/%3E%3C/svg%3E");
+}
+
+/* Devanagari Hindi Display typography */
+.font-devanagari {
+  font-family: "Rozha One", "Martel", "Noto Serif Devanagari", "Kohinoor Devanagari", "Devanagari Sangam MN", serif;
+  font-weight: 700;
+}
+
+/* Literary Paper Serif typography for letters */
+.font-paper {
+  font-family: "Newsreader", "Cormorant Garamond", "EB Garamond", Georgia, Cambria, "Times New Roman", Times, serif;
+}
+
+/* Minimal warm scrollbar */
+::-webkit-scrollbar {
+  width: 5px;
+  height: 5px;
+}
+::-webkit-scrollbar-track {
+  background: #0d0a08;
+}
+::-webkit-scrollbar-thumb {
+  background: #2a221b;
+  border-radius: 9999px;
+}
+::-webkit-scrollbar-thumb:hover {
+  background: #3e3227;
+}
+
+/* Paper subtle texture effect */
+.paper-sheet {
+  background-color: #f6f1e8;
+  background-image: radial-gradient(#ebe1cf 0.75px, transparent 0.75px);
+  background-size: 18px 18px;
+}
+
+/* Journal ruled lines for writing letter */
+.journal-ruled {
+  background-image: repeating-linear-gradient(transparent, transparent 31px, #ebe1cf 31px, #ebe1cf 32px);
+  line-height: 32px;
+}
+
+/* Soft heart reaction pulse */
+@keyframes warmHeartPulse {
+  0%, 100% { transform: scale(1); }
+  50% { transform: scale(1.28); }
+}
+
+.animate-warm-heart {
+  animation: warmHeartPulse 0.45s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+}
+
