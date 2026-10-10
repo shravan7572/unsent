@@ -1,36 +1,53 @@
 "use client"
+
 import axios from "axios";
-import { useRef } from "react";
+import { useRef, useState } from "react";
 
 
-export default function writeletter(){
-   const toRef = useRef<HTMLInputElement | null>(null);
+export default function writeletter() {
+
+    const toRef = useRef<HTMLInputElement | null>(null);
     const messageRef = useRef<HTMLInputElement | null>(null);
     const usernameRef = useRef<HTMLInputElement | null>(null);
+    const [sent, setsent] = useState(false);
+
 
     return (
         <div>
-            <input ref={toRef} className="border-1 p-2 m-2" placeholder="enter the message u need to send to."
-            ></input>
-            <input ref={messageRef} className="border-1 p-2 m-2" placeholder="enter the message "
-            ></input>
-            <input ref={usernameRef} className="border-1 p-2 m-2" placeholder="enter username if want to ."
-            ></input>
-            
+
+            {sent ? (
+                <p>Your letter has been sent to nobody. 💔</p>)
+                : (
+                    <>
+                        <input ref={toRef} className="border-1 p-2 m-2" placeholder="enter the message u need to send to."
+                        ></input>
+                        <input ref={messageRef} className="border-1 p-2 m-2" placeholder="enter the message "
+                        ></input>
+                        <input ref={usernameRef} className="border-1 p-2 m-2" placeholder="enter username if want to ."
+                        ></input>
+                    </>
+                )}
+
+
             <br></br>
             <br></br>
             <br></br>
             <br></br>
 
-            <button onClick={()=>{
-                axios.post("http://localhost:3001/api/letters",{
-                    to:toRef.current?.value,
-                    message:messageRef.current?.value,
-                    username:usernameRef.current?.value
+            <button onClick={() => {
+                axios.post("http://localhost:3001/api/letters", {
+                    to: toRef.current?.value,
+                    content: messageRef.current?.value,
+                    username: usernameRef.current?.value,
+
+                }).then(() => {
+                    setsent(true)
                 })
             }}
-            className="border-1 p-2"
+                className="border-1 p-2"
             >sent the unsent</button>
+
         </div>
+
     );
 }

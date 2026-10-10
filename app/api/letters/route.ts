@@ -5,7 +5,7 @@ import { NextRequest, NextResponse } from "next/server";
 export async function POST(req:NextRequest){
     const letterdata=await req.json();
 
-    const response = prisma.Letter.create({
+    const response =await prisma.letter.create({
         data:{
             to:letterdata.to,
             content:letterdata.content,
@@ -15,5 +15,15 @@ export async function POST(req:NextRequest){
 
     return NextResponse.json({
         message:"letter send sucessfully!!!1"
+    })
+}
+
+export async function GET(req:NextRequest){
+    const letterdata=await req.json();
+    return NextResponse.json({
+        message:"letter send sucessfully!!!1",
+        content:letterdata.content,
+        to:letterdata.to,
+        username:letterdata.username
     })
 }
