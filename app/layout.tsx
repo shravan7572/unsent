@@ -1,9 +1,40 @@
-import type { Metadata } from "next";
+import type { Metadata, Viewport } from "next";
 import "./globals.css";
 
+export const viewport: Viewport = {
+  themeColor: "#0d0a08",
+  width: "device-width",
+  initialScale: 1,
+  maximumScale: 5,
+};
+
 export const metadata: Metadata = {
-  title: "अनकहा | Unsent — Letters You Never Sent",
-  description: "A sanctuary for words left unsaid. Anonymous letters written from the heart, kept forever in the dark.",
+  title: "अनकहा | Unsent — Say What You Never Could",
+  description:
+    "An anonymous sanctuary for heartbreaks, unsaid apologies, and the words that were never meant to arrive.",
+  keywords: [
+    "unsent",
+    "letters",
+    "anonymous letters",
+    "unsaid",
+    "अनकहा",
+    "heartbreak",
+    "confessions",
+  ],
+  authors: [{ name: "Unsent" }],
+  openGraph: {
+    title: "अनकहा | Unsent — Say What You Never Could",
+    description:
+      "An anonymous sanctuary for heartbreaks, unsaid apologies, and the words that were never meant to arrive.",
+    type: "website",
+    siteName: "Unsent",
+  },
+  twitter: {
+    card: "summary_large_image",
+    title: "अनकहा | Unsent — Say What You Never Could",
+    description:
+      "An anonymous sanctuary for heartbreaks, unsaid apologies, and the words that were never meant to arrive.",
+  },
 };
 
 export default function RootLayout({

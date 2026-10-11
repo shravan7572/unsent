@@ -91,6 +91,7 @@ export default function LettersFeed({
         clearTimeout(debounceTimerRef.current);
       }
     };
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [searchQuery]);
 
   // Load more letters on demand (cursor pagination)
