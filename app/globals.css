@@ -1,5 +1,4 @@
- @import url('https://fonts.googleapis.com/css2?family=Tiro+Devanagari+Hindi&family=Cormorant+Garamond:ital,wght@0,300;0,400;1,300;1,400&family=DM+Sans:opsz,wght@9..40,300;9..40,400&display=swap');
-@import url('https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,400;0,500;0,600;0,700;1,400;1,500;1,600&family=Martel:wght@400;700;800;900&family=Rozha+One&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,500;0,600;1,300;1,400;1,500&family=Martel:wght@300;400;600&family=Tiro+Devanagari+Hindi:ital@0;1&display=swap');
 @import "tailwindcss";
 
 :root {
@@ -36,15 +35,15 @@ body::before {
   background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noiseFilter'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noiseFilter)'/%3E%3C/svg%3E");
 }
 
-/* Devanagari Hindi Display typography */
+/* Devanagari Classical Hindi Display typography — Premium & Refined */
 .font-devanagari {
-  font-family: "Rozha One", "Martel", "Noto Serif Devanagari", "Kohinoor Devanagari", "Devanagari Sangam MN", serif;
-  font-weight: 700;
+  font-family: "Tiro Devanagari Hindi", "Martel", serif;
+  font-weight: 400;
 }
 
-/* Literary Paper Serif typography for letters */
+/* Literary Paper Serif typography — High-End Atelier Editorial */
 .font-paper {
-  font-family: "Newsreader", "Cormorant Garamond", "EB Garamond", Georgia, Cambria, "Times New Roman", Times, serif;
+  font-family: "Cormorant Garamond", "Newsreader", "EB Garamond", Georgia, serif;
 }
 
 /* Minimal warm scrollbar */
