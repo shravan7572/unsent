@@ -72,13 +72,13 @@ export default function WriteModal({ isOpen, onClose, onLetterSent }: WriteModal
         if (e.target === e.currentTarget) handleResetAndClose();
       }}
     >
-      <div className="paper-sheet relative bg-[#f6f1e8] text-[#241e1a] border border-[#e2d6c3] rounded-3xl w-full max-w-xl p-7 sm:p-10 shadow-[0_30px_90px_rgba(0,0,0,0.9)] overflow-hidden">
+      <div className="paper-sheet relative bg-[#f6f1e8] text-[#241e1a] border border-[#e2d6c3] rounded-3xl w-full max-w-xl p-5 sm:p-9 shadow-[0_30px_90px_rgba(0,0,0,0.9)] max-h-[92vh] overflow-y-auto">
         {/* Subtle decorative left margin rule like classic journal paper */}
         <div className="absolute left-6 sm:left-8 top-0 bottom-0 w-px bg-[#8B0000]/15 pointer-events-none" />
 
         <button
           onClick={handleResetAndClose}
-          className="absolute top-5 right-5 text-[#857766] hover:text-[#231f1c] text-xl p-1 transition-colors cursor-pointer"
+          className="absolute top-4 right-4 sm:top-5 sm:right-5 text-[#857766] hover:text-[#231f1c] text-xl p-1 transition-colors cursor-pointer"
           title="Close sheet"
         >
           &times;
@@ -217,22 +217,22 @@ export default function WriteModal({ isOpen, onClose, onLetterSent }: WriteModal
                 />
               </div>
 
-              <div className="flex items-center justify-between pt-2">
-                <span className="text-[11px] text-[#857766] italic font-paper">
+              <div className="flex flex-col-reverse sm:flex-row items-center justify-between gap-3 pt-2">
+                <span className="text-[11px] text-[#857766] italic font-paper text-center sm:text-left">
                   &ldquo;Even if she never reads this, the silence will keep it safe.&rdquo;
                 </span>
-                <div className="flex gap-2.5">
+                <div className="flex gap-2.5 w-full sm:w-auto justify-end">
                   <button
                     type="button"
                     onClick={handleResetAndClose}
-                    className="text-xs px-4 py-2 rounded-full border border-[#d8cdbc] hover:bg-[#ece4d6] text-[#615444] transition-colors cursor-pointer"
+                    className="flex-1 sm:flex-none text-xs px-4 py-2 rounded-full border border-[#d8cdbc] hover:bg-[#ece4d6] text-[#615444] transition-colors cursor-pointer text-center"
                   >
                     Discard
                   </button>
                   <button
                     type="submit"
                     disabled={isSubmitting || !content.trim()}
-                    className="text-xs px-5 py-2 rounded-full bg-[#8B0000] hover:bg-[#720000] text-[#fbf8f3] font-medium transition-all shadow-[0_2px_14px_rgba(139,0,0,0.3)] disabled:opacity-40 cursor-pointer"
+                    className="flex-1 sm:flex-none text-xs px-5 py-2 rounded-full bg-[#8B0000] hover:bg-[#720000] text-[#fbf8f3] font-medium transition-all shadow-[0_2px_14px_rgba(139,0,0,0.3)] disabled:opacity-40 cursor-pointer text-center"
                   >
                     {isSubmitting ? "Releasing words..." : "Send it to nobody"}
                   </button>

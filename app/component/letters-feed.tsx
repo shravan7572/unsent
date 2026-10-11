@@ -1,11 +1,12 @@
 "use client";
 
-import { useMemo, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import LetterCard, { LetterItem } from "./letter-card";
 import WriteModal from "./write-modal";
 
 interface LettersFeedProps {
   initialLetters: LetterItem[];
+  totalCount?: number;
 }
 
 const CATEGORY_FILTERS = [
@@ -15,68 +16,132 @@ const CATEGORY_FILTERS = [
   { id: "nobody", label: "To Nobody" },
 ];
 
-export default function LettersFeed({ initialLetters }: LettersFeedProps) {
+export default function LettersFeed({
+  initialLetters,
+  totalCount = 0,
+}: LettersFeedProps) {
   const [letters, setLetters] = useState<LetterItem[]>(initialLetters);
   const [activeFilter, setActiveFilter] = useState("all");
   const [searchQuery, setSearchQuery] = useState("");
   const [isWriteModalOpen, setIsWriteModalOpen] = useState(false);
+  const [isLoadingMore, setIsLoadingMore] = useState(false);
+  const [isFetchingFilter, setIsFetchingFilter] = useState(false);
+  const [hasMore, setHasMore] = useState(
+    totalCount > initialLetters.length || initialLetters.length >= 10
+  );
+  const [displayedTotal, setDisplayedTotal] = useState(totalCount || initialLetters.length);
 
-  // Filter and sort computation
-  const displayedLetters = useMemo(() => {
-    let result = [...letters];
+  const debounceTimerRef = useRef<NodeJS.Timeout | null>(null);
+  const isFirstRender = useRef(true);
 
-    // Filter computation
-    if (activeFilter === "felt") {
-      result.sort((a, b) => (b.feltThis || 0) - (a.feltThis || 0));
-    } else if (activeFilter === "addressed") {
-      result = result.filter(
-        (l) => l.to && l.to.trim().length > 0 && l.to.trim().toLowerCase() !== "nobody"
-      );
-      result.sort(
-        (a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime()
-      );
-    } else if (activeFilter === "nobody") {
-      result = result.filter(
-        (l) => !l.to || !l.to.trim() || l.to.trim().toLowerCase() === "nobody"
-      );
-      result.sort(
-        (a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime()
-      );
-    } else {
-      // Chronological
-      result.sort(
-        (a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime()
-      );
-    }
-
-    // Search query
-    if (searchQuery.trim()) {
-      const q = searchQuery.toLowerCase().trim();
-      result = result.filter(
-        (l) =>
-          (l.to && l.to.toLowerCase().includes(q)) ||
-          l.content.toLowerCase().includes(q) ||
-          (l.username && l.username.toLowerCase().includes(q))
-      );
-    }
-
-    return result;
-  }, [letters, activeFilter, searchQuery]);
-
-  const handleLetterSent = async () => {
+  // Fetch letters when filter or search changes
+  const fetchFilteredLetters = async (filter: string, search: string) => {
+    setIsFetchingFilter(true);
     try {
-      const res = await fetch("/api/letters");
+      const params = new URLSearchParams({
+        limit: "10",
+        filter,
+        search,
+      });
+
+      const res = await fetch(`/api/letters?${params.toString()}`);
       if (res.ok) {
         const data = await res.json();
-        setLetters(data);
+        const items = Array.isArray(data) ? data : data.letters || [];
+        const nextHasMore = Array.isArray(data)
+          ? items.length >= 10
+          : Boolean(data.hasMore);
+        const count = Array.isArray(data) ? items.length : data.totalCount ?? items.length;
+
+        setLetters(items);
+        setHasMore(nextHasMore);
+        setDisplayedTotal(count);
       }
-    } catch (e) {
-      console.error("Failed to refresh feed:", e);
+    } catch (err) {
+      console.error("Failed to fetch filtered letters:", err);
+    } finally {
+      setIsFetchingFilter(false);
     }
   };
 
+  // Handle filter category clicks
+  const handleFilterSelect = (filterId: string) => {
+    if (activeFilter === filterId && !searchQuery) return;
+    setActiveFilter(filterId);
+    fetchFilteredLetters(filterId, searchQuery);
+  };
+
+  // Debounced search query change
+  useEffect(() => {
+    if (isFirstRender.current) {
+      isFirstRender.current = false;
+      return;
+    }
+
+    if (debounceTimerRef.current) {
+      clearTimeout(debounceTimerRef.current);
+    }
+
+    debounceTimerRef.current = setTimeout(() => {
+      fetchFilteredLetters(activeFilter, searchQuery);
+    }, 350);
+
+    return () => {
+      if (debounceTimerRef.current) {
+        clearTimeout(debounceTimerRef.current);
+      }
+    };
+  }, [searchQuery]);
+
+  // Load more letters on demand (cursor pagination)
+  const handleLoadMore = async () => {
+    if (isLoadingMore || !hasMore || letters.length === 0) return;
+
+    setIsLoadingMore(true);
+    try {
+      const lastLetter = letters[letters.length - 1];
+      const params = new URLSearchParams({
+        limit: "10",
+        cursor: lastLetter.id,
+        filter: activeFilter,
+        search: searchQuery,
+      });
+
+      const res = await fetch(`/api/letters?${params.toString()}`);
+      if (res.ok) {
+        const data = await res.json();
+        const newItems: LetterItem[] = Array.isArray(data)
+          ? data
+          : data.letters || [];
+        const nextHasMore = Array.isArray(data)
+          ? newItems.length >= 10
+          : Boolean(data.hasMore);
+
+        setLetters((prev) => {
+          const existingIds = new Set(prev.map((l) => l.id));
+          const uniqueNew = newItems.filter((l) => !existingIds.has(l.id));
+          return [...prev, ...uniqueNew];
+        });
+
+        setHasMore(nextHasMore);
+      }
+    } catch (err) {
+      console.error("Failed to load more letters:", err);
+    } finally {
+      setIsLoadingMore(false);
+    }
+  };
+
+  // Refresh feed after sending a letter
+  const handleLetterSent = async () => {
+    await fetchFilteredLetters(activeFilter, searchQuery);
+  };
+
   return (
-    <section id="explore" className="w-full max-w-5xl mx-auto px-4 sm:px-6 pt-12 pb-24">
+    <section
+      id="explore"
+      className="w-full max-w-5xl mx-auto px-4 sm:px-6 pt-12 pb-24"
+    >
       {/* Section Introduction */}
       <div className="flex flex-col md:flex-row md:items-end justify-between gap-6 pb-8 border-b border-[#211a14]/90">
         <div>
@@ -89,12 +154,14 @@ export default function LettersFeed({ initialLetters }: LettersFeedProps) {
             Read the Letters
           </h2>
           <p className="text-sm text-[#9c8e7c] mt-1.5 max-w-md font-paper italic leading-relaxed">
-            Each sheet below was written by someone who couldn&apos;t say it out loud — words meant for someone specific, preserved where they will never cause them pain.
+            Each sheet below was written by someone who couldn&apos;t say it out
+            loud — words meant for someone specific, preserved where they will
+            never cause them pain.
           </p>
         </div>
 
         {/* Search bar & Write Invitation */}
-        <div className="flex items-center gap-3 w-full md:w-auto">
+        <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-2.5 sm:gap-3 w-full md:w-auto">
           <div className="relative flex-1 md:w-64">
             <input
               type="text"
@@ -131,25 +198,25 @@ export default function LettersFeed({ initialLetters }: LettersFeedProps) {
           {/* Warm invitation button */}
           <button
             onClick={() => setIsWriteModalOpen(true)}
-            className="px-5 py-2.5 rounded-full border border-[#8B0000]/60 bg-[#1f0d0a] hover:bg-[#8B0000] text-[#f4efe6] text-xs font-paper italic transition-all duration-300 shadow-[0_2px_15px_rgba(139,0,0,0.25)] shrink-0 cursor-pointer"
+            className="w-full sm:w-auto text-center px-5 py-2.5 rounded-full border border-[#8B0000]/60 bg-[#1f0d0a] hover:bg-[#8B0000] text-[#f4efe6] text-xs font-paper italic transition-all duration-300 shadow-[0_2px_15px_rgba(139,0,0,0.25)] shrink-0 cursor-pointer"
           >
             Leave a letter
           </button>
         </div>
       </div>
 
-      {/* Real Category Filters */}
-      <div className="flex items-center gap-2 overflow-x-auto py-6 scrollbar-none text-xs">
+      {/* Real Category Filters — Edge-to-edge Swipeable on Mobile */}
+      <div className="flex items-center gap-2 overflow-x-auto py-5 sm:py-6 scrollbar-none text-xs touch-pan-x -mx-4 px-4 sm:mx-0 sm:px-0">
         {CATEGORY_FILTERS.map((f) => {
           const isActive = activeFilter === f.id;
           return (
             <button
               key={f.id}
-              onClick={() => setActiveFilter(f.id)}
+              onClick={() => handleFilterSelect(f.id)}
               className={`px-4 py-2 rounded-full whitespace-nowrap transition-all duration-200 text-xs font-sans tracking-wide cursor-pointer ${
                 isActive
-                  ? "bg-[#f5f0e8] text-[#1c1815] font-semibold shadow-md"
-                  : "bg-[#140f0c] border border-[#261e16] text-[#9c8e7c] hover:text-[#f4efe6] hover:border-[#382d22]"
+                  ? "bg-[#f7f2e8] text-[#1c1611] font-medium border border-[#ded3bf] shadow-sm"
+                  : "bg-[#160f0b] border border-[#2b2016] text-[#a49483] hover:text-[#f4efe6] hover:border-[#423224]"
               }`}
             >
               {f.label}
@@ -159,19 +226,27 @@ export default function LettersFeed({ initialLetters }: LettersFeedProps) {
       </div>
 
       {/* Counter */}
-      <div className="flex items-center justify-between text-[11px] font-mono text-[#786b5b] mb-7 px-1">
+      <div className="flex items-center justify-between text-[11px] font-mono text-[#8a7a69] mb-7 px-1">
         <span>
-          {displayedLetters.length} {displayedLetters.length === 1 ? "sheet" : "sheets"} on the desk
+          Showing {letters.length} of {displayedTotal}{" "}
+          {displayedTotal === 1 ? "sheet" : "sheets"} on the desk
         </span>
         {activeFilter === "felt" && (
           <span className="text-[#c06b6b]">Sorted by most felt</span>
         )}
       </div>
 
+      {/* Loading Filter Indicator */}
+      {isFetchingFilter && (
+        <div className="py-12 text-center text-xs font-paper italic text-[#a49483] flex items-center justify-center gap-2">
+          <span className="w-1.5 h-1.5 rounded-full bg-[#8B0000] animate-ping" />
+          <span>Searching the archive...</span>
+        </div>
+      )}
+
       {/* 2-Column Aged Paper Cards Grid on Dark Background */}
-      {displayedLetters.length === 0 ? (
+      {!isFetchingFilter && letters.length === 0 ? (
         <div className="paper-sheet text-center py-16 border border-[#ded4c2] rounded-3xl p-8 max-w-xl mx-auto shadow-2xl">
-          {/* Subtle Vintage Postmark / Wax Seal Graphic */}
           <div className="w-12 h-12 mx-auto mb-4 rounded-full border border-[#cbbeaa] bg-[#ece2d0] flex items-center justify-center text-[#8B0000]">
             <svg
               width="22"
@@ -215,11 +290,49 @@ export default function LettersFeed({ initialLetters }: LettersFeedProps) {
           </div>
         </div>
       ) : (
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-7 sm:gap-8 items-start">
-          {displayedLetters.map((letter) => (
-            <LetterCard key={letter.id} letter={letter} />
-          ))}
-        </div>
+        !isFetchingFilter && (
+          <>
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-5 sm:gap-6 items-start">
+              {letters.map((letter) => (
+                <LetterCard key={letter.id} letter={letter} />
+              ))}
+            </div>
+
+            {/* Unfold More Letters Button / End of Archive Notice */}
+            <div className="mt-14 text-center">
+              {hasMore ? (
+                <button
+                  onClick={handleLoadMore}
+                  disabled={isLoadingMore}
+                  className="inline-flex items-center gap-2.5 px-7 py-3 rounded-full border border-[#3e2d21] bg-[#160e0a]/85 hover:bg-[#221610] hover:border-[#8B0000]/60 text-[#dfd4c5] hover:text-[#fcf9f5] text-xs font-paper italic tracking-wider transition-all duration-300 shadow-sm cursor-pointer disabled:opacity-50"
+                >
+                  {isLoadingMore ? (
+                    <>
+                      <span className="w-1.5 h-1.5 rounded-full bg-[#8B0000] animate-ping" />
+                      <span>Gently unfolding more letters...</span>
+                    </>
+                  ) : (
+                    <>
+                      <span className="text-[#b85454] font-normal">पत्र और खोलें</span>
+                      <span className="opacity-40">•</span>
+                      <span>Unfold more letters ↓</span>
+                    </>
+                  )}
+                </button>
+              ) : (
+                <div className="py-10 max-w-md mx-auto text-center border-t border-[#221912]/80">
+                  <div className="w-1.5 h-1.5 rounded-full bg-[#8B0000]/60 mx-auto mb-3" />
+                  <p className="font-paper italic text-sm text-[#8c7b69] leading-relaxed">
+                    You have reached the quietest corner of the desk tonight.
+                  </p>
+                  <span className="block text-[10px] font-mono tracking-widest uppercase text-[#5a4c3d] mt-1">
+                    All preserved letters have been read
+                  </span>
+                </div>
+              )}
+            </div>
+          </>
+        )
       )}
 
       {/* Write Letter Modal */}
@@ -231,4 +344,3 @@ export default function LettersFeed({ initialLetters }: LettersFeedProps) {
     </section>
   );
 }
-

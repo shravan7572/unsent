@@ -5,9 +5,7 @@ generator client {
 
 datasource db {
   provider = "postgresql"
-    
-
-
+  url      = env("DATABASE_URL")
 }
 
 model Letter {
@@ -19,6 +17,9 @@ model Letter {
   createdAt DateTime  @default(now())
 
   comments  Comment[]
+
+  @@index([createdAt])
+  @@index([feltThis])
 }
 
 model Comment {

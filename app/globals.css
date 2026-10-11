@@ -1,4 +1,4 @@
-@import url('https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,500;0,600;1,300;1,400;1,500&family=Martel:wght@300;400;600&family=Tiro+Devanagari+Hindi:ital@0;1&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Caveat:wght@400;500;600;700&family=Cormorant+Garamond:ital,wght@0,300;0,400;0,500;0,600;1,300;1,400;1,500&family=Martel:wght@300;400;600&family=Tiro+Devanagari+Hindi:ital@0;1&display=swap');
 @import "tailwindcss";
 
 :root {
@@ -10,6 +10,11 @@
   --crimson-muted: #8B0000;
   --crimson-rose: #9c2727;
   --warm-gold: #c29d62;
+}
+
+html {
+  overflow-x: hidden;
+  scroll-behavior: smooth;
 }
 
 body {
@@ -46,6 +51,11 @@ body::before {
   font-family: "Cormorant Garamond", "Newsreader", "EB Garamond", Georgia, serif;
 }
 
+/* Authentic Intimate Handwriting typography */
+.font-handwriting {
+  font-family: "Caveat", cursive;
+}
+
 /* Minimal warm scrollbar */
 ::-webkit-scrollbar {
   width: 5px;
@@ -62,11 +72,59 @@ body::before {
   background: #3e3227;
 }
 
-/* Paper subtle texture effect */
+/* Realistic Aged Paper Sheet Styling */
 .paper-sheet {
-  background-color: #f6f1e8;
-  background-image: radial-gradient(#ebe1cf 0.75px, transparent 0.75px);
-  background-size: 18px 18px;
+  background-color: #f7f2e8;
+  background-image: 
+    radial-gradient(#e5dbc8 0.65px, transparent 0.65px),
+    linear-gradient(179deg, #fbf7ee 0%, #f6f0e4 52%, #efe6d6 100%);
+  background-size: 16px 16px, 100% 100%;
+  box-shadow: 
+    0 1px 2px rgba(0, 0, 0, 0.4),
+    0 8px 24px -3px rgba(0, 0, 0, 0.55),
+    0 22px 48px -8px rgba(0, 0, 0, 0.52),
+    inset 0 1px 0 rgba(255, 255, 255, 0.55);
+}
+
+/* Notebook margin rule on paper - compact and refined */
+.paper-margin-rule {
+  background-image: linear-gradient(90deg, transparent 20px, rgba(160, 42, 42, 0.16) 20px, rgba(160, 42, 42, 0.16) 21px, transparent 21px);
+}
+
+@media (min-width: 640px) {
+  .paper-margin-rule {
+    background-image: linear-gradient(90deg, transparent 26px, rgba(160, 42, 42, 0.16) 26px, rgba(160, 42, 42, 0.16) 27px, transparent 27px);
+  }
+}
+
+/* Authentic Vintage Airmail / Aerogramme Edge */
+.airmail-edge {
+  background-image: repeating-linear-gradient(
+    -45deg,
+    #8B0000 0px,
+    #8B0000 8px,
+    transparent 8px,
+    transparent 14px,
+    #223755 14px,
+    #223755 22px,
+    transparent 22px,
+    transparent 28px
+  );
+  opacity: 0.28;
+}
+
+/* Vintage Perforated Postage Stamp */
+.vintage-stamp {
+  background: #fbf8f2;
+  box-shadow: 0 1px 4px rgba(0, 0, 0, 0.22), inset 0 0 0 1px rgba(180, 160, 140, 0.25);
+  border: 1.5px dashed #bfb19c;
+}
+
+/* Margin Note Sticky Slip */
+.margin-note-slip {
+  background-color: #fbf7ec;
+  background-image: linear-gradient(180deg, #fdfbf3 0%, #f8f1de 100%);
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.16), 0 0 0 1px rgba(215, 202, 180, 0.6);
 }
 
 /* Journal ruled lines for writing letter */

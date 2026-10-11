@@ -200,14 +200,14 @@ export default function WriteLetter() {
                   />
                 </div>
 
-                <div className="flex items-center justify-between pt-2">
-                  <span className="text-[11px] text-[#857766] italic font-paper">
+                <div className="flex flex-col-reverse sm:flex-row items-center sm:justify-between gap-3 pt-2">
+                  <span className="text-[11px] text-[#857766] italic font-paper text-center sm:text-left">
                     &ldquo;For the one who will never know how many lines were written in her name.&rdquo;
                   </span>
                   <button
                     type="submit"
                     disabled={loading || !content.trim()}
-                    className="px-7 py-3 rounded-full bg-[#8B0000] hover:bg-[#720000] text-[#fbf8f3] font-medium text-xs font-sans tracking-wide transition-all shadow-[0_2px_14px_rgba(139,0,0,0.3)] disabled:opacity-40 cursor-pointer"
+                    className="w-full sm:w-auto px-7 py-3 rounded-full bg-[#8B0000] hover:bg-[#720000] text-[#fbf8f3] font-medium text-xs font-sans tracking-wide transition-all shadow-[0_2px_14px_rgba(139,0,0,0.3)] disabled:opacity-40 cursor-pointer text-center"
                   >
                     {loading ? "Releasing words..." : "Send it to nobody"}
                   </button>

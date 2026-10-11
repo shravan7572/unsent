@@ -58,23 +58,96 @@ export async function POST(req: NextRequest) {
 export async function GET(req: NextRequest) {
   try {
     const { searchParams } = new URL(req.url);
-    const sort = searchParams.get("sort");
+    const limitParam = parseInt(searchParams.get("limit") || "10", 10);
+    const limit = Math.min(Math.max(1, limitParam), 30);
+    const cursor = searchParams.get("cursor");
+    const sort = searchParams.get("sort") || "latest";
+    const filter = searchParams.get("filter") || "all";
+    const search = searchParams.get("search")?.trim() || "";
+
+    // Build filter conditions
+    const conditions: Array<Record<string, unknown>> = [];
+
+    if (filter === "addressed") {
+      conditions.push({ to: { not: null } });
+      conditions.push({ to: { not: "" } });
+      conditions.push({ to: { not: "nobody", mode: "insensitive" } });
+    } else if (filter === "nobody") {
+      conditions.push({
+        OR: [
+          { to: null },
+          { to: "" },
+          { to: { equals: "nobody", mode: "insensitive" } },
+        ],
+      });
+    }
+
+    if (search) {
+      conditions.push({
+        OR: [
+          { content: { contains: search, mode: "insensitive" } },
+          { to: { contains: search, mode: "insensitive" } },
+          { username: { contains: search, mode: "insensitive" } },
+        ],
+      });
+    }
+
+    const where = conditions.length > 0 ? { AND: conditions } : {};
 
     const orderBy =
-      sort === "felt"
-        ? [{ feltThis: "desc" as const }, { createdAt: "desc" as const }]
-        : [{ createdAt: "desc" as const }];
+      sort === "felt" || filter === "felt"
+        ? [
+            { feltThis: "desc" as const },
+            { createdAt: "desc" as const },
+            { id: "desc" as const },
+          ]
+        : [{ createdAt: "desc" as const }, { id: "desc" as const }];
 
-    const letters = await prisma.letter.findMany({
+    const queryOptions: {
+      take: number;
+      where: typeof where;
+      orderBy: typeof orderBy;
+      include: {
+        comments: {
+          orderBy: { createdAt: "asc" };
+        };
+      };
+      cursor?: { id: string };
+      skip?: number;
+    } = {
+      take: limit + 1,
+      where,
+      orderBy,
       include: {
         comments: {
           orderBy: { createdAt: "asc" },
         },
       },
-      orderBy,
-    });
+    };
 
-    return NextResponse.json(letters);
+    if (cursor) {
+      queryOptions.cursor = { id: cursor };
+      queryOptions.skip = 1;
+    }
+
+    const [lettersWithExtra, totalCount] = await Promise.all([
+      prisma.letter.findMany(queryOptions),
+      prisma.letter.count({ where }),
+    ]);
+
+    const hasMore = lettersWithExtra.length > limit;
+    const letters = hasMore
+      ? lettersWithExtra.slice(0, limit)
+      : lettersWithExtra;
+    const nextCursor =
+      hasMore && letters.length > 0 ? letters[letters.length - 1].id : null;
+
+    return NextResponse.json({
+      letters,
+      nextCursor,
+      hasMore,
+      totalCount,
+    });
   } catch (error) {
     console.error("Failed to fetch letters:", error);
     return NextResponse.json(
