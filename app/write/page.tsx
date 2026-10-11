@@ -202,7 +202,7 @@ export default function WriteLetter() {
 
                 <div className="flex flex-col-reverse sm:flex-row items-center sm:justify-between gap-3 pt-2">
                   <span className="text-[11px] text-[#857766] italic font-paper text-center sm:text-left">
-                    &ldquo;For the one who will never know how many lines were written in her name.&rdquo;
+                    &ldquo;For the one who will never know how many lines were written in their name.&rdquo;
                   </span>
                   <button
                     type="submit"

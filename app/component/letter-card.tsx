@@ -83,12 +83,6 @@ export default function LetterCard({ letter }: { letter: LetterItem }) {
   // Check if content is Hindi / Devanagari script for specialized typography
   const hasDevanagari = /[\u0900-\u097F]/.test(letter.content);
 
-  // Subtle deterministic micro-tilt for desktop, clean flush boundaries on mobile
-  const tiltClass =
-    letter.id.charCodeAt(letter.id.length - 1) % 2 === 0
-      ? "sm:-rotate-[0.3deg] sm:hover:rotate-0"
-      : "sm:rotate-[0.3deg] sm:hover:rotate-0";
-
   const handleFeltReaction = async () => {
     if (hasFelt) return;
 
@@ -143,7 +137,7 @@ export default function LetterCard({ letter }: { letter: LetterItem }) {
 
   return (
     <article
-      className={`paper-sheet paper-margin-rule relative rounded-2xl p-4 sm:p-6 pb-4 sm:pb-6 border border-[#dfd3bd] flex flex-col justify-between group transition-all duration-300 overflow-hidden ${tiltClass}`}
+      className="paper-sheet paper-margin-rule relative rounded-2xl p-4 sm:p-6 pb-4 sm:pb-6 border border-[#dfd3bd] flex flex-col justify-between group transition-all duration-300 overflow-hidden"
     >
       {/* Top Airmail Striping Accent */}
       <div className="h-1 airmail-edge rounded-t-xl -mx-4 -mt-4 sm:-mx-6 sm:-mt-6 mb-3 sm:mb-4" />

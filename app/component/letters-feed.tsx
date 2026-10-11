@@ -293,10 +293,29 @@ export default function LettersFeed({
       ) : (
         !isFetchingFilter && (
           <>
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-5 sm:gap-6 items-start">
+            {/* Mobile View: Single-column chronological stream */}
+            <div className="flex flex-col gap-5 md:hidden">
               {letters.map((letter) => (
-                <LetterCard key={letter.id} letter={letter} />
+                <LetterCard key={`${letter.id}-m`} letter={letter} />
               ))}
+            </div>
+
+            {/* Desktop View: True 2-Column Masonry Waterfall (Zero empty gaps, cards pack tightly) */}
+            <div className="hidden md:grid md:grid-cols-2 gap-6 items-start">
+              <div className="flex flex-col gap-6">
+                {letters
+                  .filter((_, idx) => idx % 2 === 0)
+                  .map((letter) => (
+                    <LetterCard key={`${letter.id}-col1`} letter={letter} />
+                  ))}
+              </div>
+              <div className="flex flex-col gap-6">
+                {letters
+                  .filter((_, idx) => idx % 2 === 1)
+                  .map((letter) => (
+                    <LetterCard key={`${letter.id}-col2`} letter={letter} />
+                  ))}
+              </div>
             </div>
 
             {/* Unfold More Letters Button / End of Archive Notice */}
