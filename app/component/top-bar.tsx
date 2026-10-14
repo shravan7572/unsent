@@ -1,10 +1,18 @@
 "use client";
 
 import Link from "next/link";
-import { useEffect, useState } from "react";
+import { useEffect, useState, useSyncExternalStore } from "react";
+
+const emptySubscribe = () => () => {};
 
 export default function TopBar() {
-  const [currentTime, setCurrentTime] = useState<string>("");
+  const mounted = useSyncExternalStore(
+    emptySubscribe,
+    () => true,
+    () => false
+  );
+  const [currentTime, setCurrentTime] = useState("03:00:00 AM");
+  const [isScrolled, setIsScrolled] = useState(false);
 
   useEffect(() => {
     const updateTime = () => {
@@ -21,7 +29,16 @@ export default function TopBar() {
 
     updateTime();
     const interval = setInterval(updateTime, 1000);
-    return () => clearInterval(interval);
+
+    const handleScroll = () => {
+      setIsScrolled(window.scrollY > 280);
+    };
+    window.addEventListener("scroll", handleScroll, { passive: true });
+
+    return () => {
+      clearInterval(interval);
+      window.removeEventListener("scroll", handleScroll);
+    };
   }, []);
 
   return (
@@ -36,10 +53,10 @@ export default function TopBar() {
           >
             <span className="w-1.5 h-1.5 rounded-full bg-[#8B0000] shrink-0 shadow-[0_0_8px_#8B0000] animate-pulse" />
             <span
-              className="font-mono text-[#f4efe6] tracking-wider sm:tracking-widest text-[10.5px] sm:text-[11px] shrink-0 drop-shadow-[0_2px_8px_rgba(0,0,0,0.85)]"
+              className="font-mono text-[#f4efe6] tracking-wider sm:tracking-widest text-[10.5px] sm:text-[11px] shrink-0 drop-shadow-[0_2px_8px_rgba(0,0,0,0.85)] min-w-[76px]"
               suppressHydrationWarning
             >
-              {currentTime || "03:00:00 AM"}
+              {mounted ? currentTime : "03:00:00 AM"}
             </span>
             <span className="text-[#5a4838] hidden sm:inline drop-shadow-[0_2px_8px_rgba(0,0,0,0.85)]">
               |
@@ -60,7 +77,9 @@ export default function TopBar() {
           </Link>
           <Link
             href="/write"
-            className="px-3.5 sm:px-4 py-1.5 rounded-full border border-[#8B0000]/70 bg-[#8B0000] hover:bg-[#720000] text-[#fcf9f5] transition-all duration-300 font-paper italic text-[11px] sm:text-xs shadow-[0_2px_14px_rgba(139,0,0,0.4)]"
+            className={`px-3.5 sm:px-4 py-1.5 rounded-full border border-[#8B0000]/70 bg-[#8B0000] hover:bg-[#720000] text-[#fcf9f5] transition-all duration-300 font-paper italic text-[11px] sm:text-xs shadow-[0_2px_14px_rgba(139,0,0,0.4)] ${
+              isScrolled ? "inline-flex" : "hidden sm:inline-flex"
+            }`}
           >
             Leave a letter
           </Link>
