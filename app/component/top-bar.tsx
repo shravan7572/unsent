@@ -51,7 +51,7 @@ export default function TopBar() {
             className="flex items-center gap-2 sm:gap-2.5 min-w-0 hover:opacity-90 transition-opacity"
             title="Return home"
           >
-            <span className="w-1.5 h-1.5 rounded-full bg-[#8B0000] shrink-0 shadow-[0_0_8px_#8B0000] animate-pulse" />
+            <span className="w-1.5 h-1.5 rounded-full bg-[#8B0000] shrink-0 shadow-[0_0_8px_#8B0000] " />
             <span
               className="font-mono text-[#f4efe6] tracking-wider sm:tracking-widest text-[10.5px] sm:text-[11px] shrink-0 drop-shadow-[0_2px_8px_rgba(0,0,0,0.85)] min-w-[76px]"
               suppressHydrationWarning
